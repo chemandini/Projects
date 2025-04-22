@@ -1,0 +1,2060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HR Automation Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<style>
+:root {
+/* Base Colors */
+--color-primary: #0070f3;
+--color-primary-dark: #0052cc;
+--color-success: #10b981;
+--color-warning: #f59e0b;
+--color-danger: #ef4444;
+--color-info: #3b82f6;
+
+/* Light Theme (default) */
+--color-background: #ffffff;
+--color-surface: #f9fafb;
+--color-surface-variant: #f0f2f5;
+--color-on-surface: #1f2937;
+--color-on-surface-variant: #6b7280;
+--color-outline: #e2e8f0;
+--color-shadow: rgba(0, 0, 0, 0.1);
+
+/* Spacing */
+--space-xs: 0.25rem;
+--space-sm: 0.5rem;
+--space-md: 1rem;
+--space-lg: 1.5rem;
+--space-xl: 2rem;
+--space-xxl: 3rem;
+
+/* Typography */
+--font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+--font-size-xs: 0.75rem;
+--font-size-sm: 0.875rem;
+--font-size-md: 1rem;
+--font-size-lg: 1.125rem;
+--font-size-xl: 1.25rem;
+--font-size-xxl: 1.5rem;
+--font-size-xxxl: 2rem;
+
+/* Border Radius */
+--radius-sm: 0.25rem;
+--radius-md: 0.5rem;
+--radius-lg: 0.75rem;
+--radius-xl: 1rem;
+--radius-full: 9999px;
+
+/* Transitions */
+--transition-fast: 150ms ease;
+--transition-medium: 300ms ease;
+--transition-slow: 500ms ease;
+
+/* Z-index layers */
+--z-index-navbar: 100;
+--z-index-modal: 1000;
+--z-index-toast: 2000;
+}
+
+/* Dark Theme */
+.dark-mode {
+--color-background: #121212;
+--color-surface: #1e1e1e;
+--color-surface-variant: #2c2c2c;
+--color-on-surface: #e5e7eb;
+--color-on-surface-variant: #9ca3af;
+--color-outline: #374151;
+--color-shadow: rgba(0, 0, 0, 0.3);
+}
+
+/* Global Reset */
+*, *::before, *::after {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+}
+
+/* Base Styles */
+html, body {
+font-family: var(--font-family);
+font-size: var(--font-size-md);
+line-height: 1.5;
+color: var(--color-on-surface);
+background-color: var(--color-background);
+transition: background-color var(--transition-medium), color var(--transition-medium);
+}
+
+body {
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+font-weight: 600;
+line-height: 1.2;
+margin-bottom: var(--space-md);
+}
+
+h1 {
+font-size: var(--font-size-xxxl);
+}
+
+h2 {
+font-size: var(--font-size-xxl);
+}
+
+h3 {
+font-size: var(--font-size-xl);
+}
+
+p {
+margin-bottom: var(--space-md);
+}
+
+a {
+color: var(--color-primary);
+text-decoration: none;
+transition: color var(--transition-fast);
+}
+
+a:hover {
+color: var(--color-primary-dark);
+}
+
+/* Layout */
+.container {
+display: grid;
+grid-template-columns: 280px 1fr;
+gap: var(--space-lg);
+padding: var(--space-lg);
+flex: 1;
+max-width: 1440px;
+margin: 0 auto;
+width: 100%;
+}
+
+@media (max-width: 768px) {
+.container {
+grid-template-columns: 1fr;
+}
+
+.sidebar {
+display: none;
+}
+}
+
+/* Navbar */
+.navbar {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: var(--space-md) var(--space-lg);
+background-color: var(--color-surface);
+border-bottom: 1px solid var(--color-outline);
+position: sticky;
+top: 0;
+z-index: var(--z-index-navbar);
+transition: background-color var(--transition-medium);
+}
+
+.logo {
+display: flex;
+align-items: center;
+gap: var(--space-sm);
+font-weight: 600;
+font-size: var(--font-size-lg);
+}
+
+.logo-icon {
+color: var(--color-primary);
+}
+
+.nav-links {
+display: flex;
+list-style: none;
+gap: var(--space-lg);
+}
+
+.nav-links a {
+color: var(--color-on-surface-variant);
+font-weight: 500;
+padding: var(--space-sm) var(--space-md);
+border-radius: var(--radius-md);
+transition: all var(--transition-fast);
+}
+
+.nav-links a:hover {
+color: var(--color-on-surface);
+background-color: var(--color-surface-variant);
+}
+
+.nav-links a.active {
+color: var(--color-primary);
+background-color: rgba(0, 112, 243, 0.1);
+}
+
+.nav-actions {
+display: flex;
+align-items: center;
+gap: var(--space-md);
+}
+
+.icon-button {
+background: none;
+border: none;
+color: var(--color-on-surface-variant);
+width: 40px;
+height: 40px;
+border-radius: var(--radius-full);
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+transition: all var(--transition-fast);
+}
+
+.icon-button:hover {
+background-color: var(--color-surface-variant);
+color: var(--color-on-surface);
+}
+
+.user-avatar {
+width: 40px;
+height: 40px;
+border-radius: var(--radius-full);
+overflow: hidden;
+border: 2px solid var(--color-outline);
+}
+
+.user-avatar img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+background-color: #ccc;
+}
+
+/* Sidebar */
+.sidebar {
+background-color: var(--color-surface);
+border-radius: var(--radius-lg);
+border: 1px solid var(--color-outline);
+padding: var(--space-lg);
+height: fit-content;
+position: sticky;
+top: calc(var(--space-lg) + 64px);
+}
+
+.sidebar-section {
+margin-bottom: var(--space-xl);
+}
+
+.sidebar-section:last-child {
+margin-bottom: 0;
+}
+
+.sidebar-section h2 {
+font-size: var(--font-size-lg);
+margin-bottom: var(--space-md);
+}
+
+.recent-actions-list,
+.notifications-list {
+list-style: none;
+display: flex;
+flex-direction: column;
+gap: var(--space-md);
+}
+
+.action-item,
+.notification-item {
+display: flex;
+gap: var(--space-sm);
+padding: var(--space-md);
+border-radius: var(--radius-md);
+background-color: var(--color-surface-variant);
+border: 1px solid var(--color-outline);
+transition: all var(--transition-fast);
+}
+
+.action-item:hover,
+.notification-item:hover {
+transform: translateY(-2px);
+box-shadow: 0 4px 6px var(--color-shadow);
+}
+
+.action-icon,
+.notification-icon {
+color: var(--color-primary);
+flex-shrink: 0;
+}
+
+.action-content,
+.notification-content {
+flex: 1;
+}
+
+.action-content h3,
+.notification-content h3 {
+font-size: var(--font-size-sm);
+margin-bottom: var(--space-xs);
+}
+
+.action-content p,
+.notification-content p {
+font-size: var(--font-size-xs);
+color: var(--color-on-surface-variant);
+margin-bottom: 0;
+}
+
+.action-time,
+.notification-time {
+font-size: var(--font-size-xs);
+color: var(--color-on-surface-variant);
+margin-top: var (--space-xs);
+}
+
+/* Content Area */
+.content {
+display: flex;
+flex-direction: column;
+gap: var (--space-xl);
+}
+
+.page-header {
+margin-bottom: var(--space-lg);
+}
+
+.page-header h1 {
+margin-bottom: var(--space-xs);
+}
+
+.page-header p {
+color: var(--color-on-surface-variant);
+margin-bottom: 0;
+}
+
+/* Upload Section */
+.upload-section {
+margin-bottom: var(--space-xl);
+}
+
+.upload-container {
+border: 2px dashed var(--color-outline);
+border-radius: var (--radius-lg);
+padding: var(--space-xxl);
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+gap: var(--space-lg);
+text-align: center;
+cursor: pointer;
+transition: all var(--transition-fast);
+}
+
+.upload-container:hover {
+border-color: var(--color-primary);
+background-color: rgba(0, 112, 243, 0.05);
+}
+
+.upload-container.dragover {
+border-color: var(--color-primary);
+background-color: rgba(0, 112, 243, 0.1);
+}
+
+.upload-icon {
+color: var(--color-on-surface-variant);
+width: 48px;
+height: 48px;
+}
+
+.upload-button {
+color: var(--color-primary);
+font-weight: 500;
+cursor: pointer;
+}
+
+/* Card */
+.card {
+background-color: var(--color-surface);
+border-radius: var (--radius-lg);
+border: 1px solid var(--color-outline);
+overflow: hidden;
+transition: box-shadow var(--transition-fast);
+}
+
+.card:hover {
+box-shadow: 0 4px 12px var(--color-shadow);
+}
+
+.card-header {
+padding: var(--space-lg);
+border-bottom: 1px solid var(--color-outline);
+display: flex;
+align-items: center;
+justify-content: space-between;
+}
+
+.card-header h2 {
+margin-bottom: 0;
+}
+
+.card-actions {
+display: flex;
+gap: var(--space-md);
+}
+
+.card-content {
+padding: var(--space-lg);
+}
+
+/* Extracted Data Grid */
+.extracted-data-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+gap: var (--space-lg);
+}
+
+.data-field {
+margin-bottom: var(--space-lg);
+}
+
+.data-field label {
+display: block;
+font-size: var(--font-size-sm);
+font-weight: 500;
+margin-bottom: var(--space-xs);
+color: var(--color-on-surface-variant);
+}
+
+.data-field input {
+width: 100%;
+padding: var(--space-md);
+border: 1px solid var(--color-outline);
+border-radius: var (--radius-md);
+font-size: var (--font-size-md);
+background-color: var(--color-surface-variant);
+color: var(--color-on-surface);
+transition: all var(--transition-fast);
+}
+
+.data-field input:focus {
+outline: none;
+border-color: var(--color-primary);
+box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.2);
+}
+
+.data-field.editable input {
+border-left: 3px solid var(--color-primary);
+}
+
+/* Button Styles */
+.button {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+gap: var(--space-sm);
+padding: var(--space-sm) var(--space-lg);
+border-radius: var(--radius-md);
+font-weight: 500;
+font-size: var(--font-size-sm);
+cursor: pointer;
+transition: all var(--transition-fast);
+}
+
+.button svg {
+width: 16px;
+height: 16px;
+}
+
+.button-primary {
+background-color: var(--color-primary);
+color: white;
+border: none;
+}
+
+.button-primary:hover {
+background-color: var(--color-primary-dark);
+}
+
+.button-primary:disabled {
+background-color: var(--color-on-surface-variant);
+cursor: not-allowed;
+}
+
+.button-outline {
+background-color: transparent;
+color: var(--color-on-surface);
+border: 1px solid var(--color-outline);
+}
+
+.button-outline:hover {
+background-color: var(--color-surface-variant);
+}
+
+/* Toast Notifications */
+.toast-container {
+position: fixed;
+bottom: var(--space-lg);
+right: var(--space-lg);
+z-index: var(--z-index-toast);
+display: flex;
+flex-direction: column;
+gap: var(--space-md);
+max-width: 350px;
+}
+
+.toast {
+background-color: var(--color-surface);
+border-radius: var(--radius-md);
+padding: var(--space-md) var (--space-lg);
+display: flex;
+align-items: center;
+gap: var(--space-md);
+box-shadow: 0 4px 12px var(--color-shadow);
+border-left: 4px solid var(--color-info);
+animation: slide-in var(--transition-medium) forwards;
+}
+
+.toast.success {
+border-left-color: var(--color-success);
+}
+
+.toast.warning {
+border-left-color: var(--color-warning);
+}
+
+.toast.error {
+border-left-color: var(--color-danger);
+}
+
+.toast-icon {
+flex-shrink: 0;
+}
+
+.toast-content {
+flex: 1;
+}
+
+.toast-content h3 {
+font-size: var(--font-size-sm);
+margin-bottom: var(--space-xs);
+}
+
+.toast-content p {
+font-size: var(--font-size-xs);
+color: var (--color-on-surface-variant);;
+margin-bottom: 0;
+}
+
+.toast-dismiss {
+background: none;
+border: none;
+cursor: pointer;
+color: var (--color-on-surface-variant);;;;
+transition: color var (--transition-fast);;
+}
+
+.toast-dismiss:hover {
+color: var (--color-on-surface);;
+}
+
+@keyframes slide-in {
+from {
+transform: translateX(100%);
+opacity: 0;
+}
+to {
+transform: translateX(0);
+opacity: 1;
+}
+}
+
+@keyframes slide-out {
+from {
+transform: translateX(0);
+opacity: 1;
+}
+to {
+transform: translateX(100%);
+opacity: 0;
+}
+}
+
+/* Modal */
+.modal {
+position: fixed;
+inset: 0;
+z-index: var(--z-index-modal);
+display: flex;
+align-items: center;
+justify-content: center;
+background-color: rgba(0, 0, 0, 0.5);
+backdrop-filter: blur(4px);
+opacity: E;
+visibility: hidden;
+transition: all var(--transition-medium);
+}
+
+.modal.show {
+opacity: 1;
+visibility: visible;
+}
+
+.modal-content {
+background-color: var(--color-surface);
+border-radius: var (--radius-lg);
+width: 100%;
+max-width: 600px;
+max-height: 80vh;
+overflow: auto;
+transform: scale(0.9);
+transition: transform var(--transition-medium);
+box-shadow: 0 10px 25px var(--color-shadow);
+}
+
+.modal.show .modal-content {
+transform: scale(1);
+}
+
+.modal-header {
+padding: var(--space-lg);
+border-bottom: 1px solid var(--color-outline);
+display: flex;
+align-items: center;
+justify-content: space-between;
+}
+
+.modal-header h2 {
+margin-bottom: 0;
+}
+
+.close-button {
+background: none;
+border: none;
+cursor: pointer;
+color: var(--color-on-surface-variant);
+width: 36px;
+height: 36px;
+border-radius: var(--radius-full);
+display: flex;
+align-items: center;
+justify-content: center;
+transition: all var(--transition-fast);
+}
+
+.close-button:hover {
+background-color: var(--color-surface-variant);
+color: var(--color-on-surface);
+}
+
+.modal-body {
+padding: var(--space-lg);
+}
+
+.modal-footer {
+padding: var(--space-lg);
+border-top: 1px solid var(--color-outline);
+display: flex;
+justify-content: flex-end;
+gap: var(--space-md);
+}
+
+/* Processing Status */
+.processing-status {
+display: flex;
+flex-direction: column;
+gap: var (--space-lg);;;
+}
+
+.status-item {
+display: flex;
+gap: var (--space-md);;;
+padding: var (--space-md);;;
+border-radius: var (--radius-md);
+background-color: var(--color-surface-variant);
+border-left: 3px solid var(--color-outline);
+}
+
+.status-item.completed {
+border-left-color: var(--color-success);
+}
+
+.status-item.completed .status-icon {
+color: var(--color-success);
+}
+
+.status-item.in-progress {
+border-left-color: var(--color-primary);
+}
+
+.status-item.in-progress .status-icon {
+color: var(--color-primary);
+animation: pulse 1.5s infinite;
+}
+
+.status-item.error {
+border-left-color: var(--color-danger);
+}
+
+.status-item.error .status-icon {
+color: var(--color-danger);
+}
+
+.status-text h3 {
+font-size: var(--font-size-md);
+margin-bottom: var(--space-xs);
+}
+
+.status-text p {
+font-size: var(--font-size-sm);
+color: var (--color-on-surface-variant);;
+margin-bottom: 0;
+}
+
+@keyframes pulse {
+0% {
+opacity: 1;
+}
+50% {
+opacity: 0.5;
+}
+100% {
+opacity: 1;
+}
+}
+
+/* Empty messages */
+.empty-message {
+padding: var(--space-lg);
+text-align: center;
+color: var(--color-on-surface-variant);
+font-style: italic;
+}
+
+/* Data section styling */
+.data-section {
+margin-bottom: var(--space-xl);
+}
+
+.data-section h3 {
+margin-bottom: var(--space-md);
+padding-bottom: var(--space-xs);
+border-bottom: 1px solid var(--color-outline);
+}
+
+/* Employee Table Styles */
+.employee-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: var(--space-md);
+}
+
+.employee-table th, .employee-table td {
+  text-align: left;
+  padding: var(--space-sm);
+  border-bottom: 1px solid var(--color-outline);
+}
+
+.employee-table th {
+  background-color: var(--color-surface-variant);
+  color: var(--color-on-surface-variant);
+  font-weight: 500;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  text-align: center;
+}
+
+.status-badge.status-missing {
+  background-color: var(--color-danger);
+  color: white;
+}
+
+.status-badge.status-complete {
+  background-color: var(--color-success);
+  color: white;
+}
+
+/* Form Group Styling */
+.form-group {
+  margin-bottom: var(--space-lg);
+}
+
+.form-group label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: var(--space-sm);
+}
+
+.form-group input[type="checkbox"] {
+  margin-right: var(--space-sm);
+}
+
+.form-control {
+  width: 100%;
+  padding: var(--space-sm);
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-md);
+  background-color: var(--color-surface-variant);
+  color: var(--color-on-surface);
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.2);
+}
+
+.export-preview {
+  padding: var(--space-md);
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-variant);
+  font-family: monospace;
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+</style>
+</head>
+<body>
+<header class="navbar">
+<div class="logo">
+<svg class="logo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+<span>HR Automator</span>
+</div>
+<nav>
+<ul class="nav-links">
+<li><a href="#" class="active" data-page="dashboard">Dashboard</a></li>
+<li><a href="#" data-page="employees">Employees</a></li>
+<li><a href="#" data-page="documents">Documents</a></li>
+<li><a href="#" data-page="settings">Settings</a></li>
+</ul>
+</nav>
+<div class="nav-actions">
+<button id="theme-toggle" class="icon-button" aria-label="Toggle theme">
+<svg class="theme-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M21 12.79C20.8427 14.4922 20.2039 16.1144 19.1582 17.4668C18.1126 18.8192 16.7035 19.8458 15.0957 20.4265C13.4879 21.0073 11.748 21.1181 10.0795 20.7461C8.41101 20.3741 6.88299 19.5345 5.67424 18.3258C4.46549 17.117 3.62593 15.589 3.25391 13.9205C2.8819 12.252 2.99274 10.5121 3.57348 8.9043C4.15423 7.29651 5.18085 5.88737 6.53324 4.84175C7.88562 3.79614 9.5078 3.15731 11.21 3C10.2134 4.34827 9.73383 6.00945 9.85853 7.68141C9.98322 9.35338 10.7039 10.9251 11.8894 12.1106C13.0749 13.2961 14.6466 14.0168 16.3186 14.1415C17.9906 14.2662 19.6517 13.7866 21 12.79Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+</button>
+<div class="user-avatar">
+<img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiM5MzQ3RDQiLz4KPHBhdGggZD0iTTIwIDIyQzIzLjMxMzcgMjIgMjYgMTkuMzEzNyAyNiAxNkMyNiAxMi42ODYzIDIzLjMxMzcgMTAgMjAgMTBDMTYuNjg2MyAxMCAxNCAxMi42ODYzIDE0IDE2QzE0IDE5LjMxMzcgMTYuNjg2MyAyMiAyMCAyMloiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0xMCAyOEMxMCAyNC42ODYzIDEyLjY4NjMgMjIgMTYgMjJIMjRDMjcuMzEzNyAyMiAzMCAyNC42ODYzIDMwIDI4VjMwSDEwVjI4WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cg==" alt="User" />
+</div>
+</div>
+</header>
+<main class="container">
+<section class="sidebar">
+<div class="sidebar-section">
+<h2>Recent Actions</h2>
+<ul class="recent-actions-list" id="recent-actions">
+<!-- Will be populated via JavaScript -->
+</ul>
+</div>
+<div class="sidebar-section">
+<h2>Notifications</h2>
+<ul class="notifications-list" id="notifications">
+<!-- Will be populated via JavaScript -->
+</ul>
+</div>
+</section>
+<section class="content">
+<div class="page-header">
+<h1>Document Processing</h1>
+<p>Upload, extract, and process employee documents</p>
+</div>
+<div class="upload-section">
+<div class="upload-container" id="upload-area">
+<svg class="upload-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+<p>Drop PDF document here or <span class="upload-button">browse files</span></p>
+<input type="file" id="file-upload" accept=".pdf" hidden />
+</div>
+</div>
+<div class="extraction-section" id="extraction-section" style="display: none;">
+<div class="card">
+<div class="card-header">
+<h2>Extracted Employee Data</h2>
+<div class="card-actions">
+<button class="button button-outline" id="reset-extraction">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M3 2v6h6"></path>
+<path d="M3 13a9 9 0 1 0 3-7.7L3 8"></path>
+</svg>
+Reset
+</button>
+<button class="button button-primary" id="process-data">
+Process Data
+</button>
+</div>
+</div>
+<div class="card-content">
+<div class="extracted-data-grid" id="extracted-data">
+<!-- Will be populated via JavaScript -->
+</div>
+</div>
+</div>
+</div>
+<div id="dashboard" class="page-section">
+  <h1>Dashboard</h1>
+  <p>Welcome to the dashboard!</p>
+</div>
+
+<div id="employees" class="page-section">
+  <h1>Employees</h1>
+  <div class="card">
+    <div class="card-header">
+      <h2>Employee List</h2>
+      <div class="card-actions">
+        <button class="button button-outline" id="refresh-employees">Refresh</button>
+        <button class="button button-primary" id="add-employee">Add Employee</button>
+      </div>
+    </div>
+    <div class="card-content">
+      <table class="employee-table">
+        <thead>
+          <tr>
+            <th>Employee ID</th>
+            <th>Name</th>
+            <th>Department</th>
+            <th>Position</th>
+            <th>Email</th>
+            <th>Hire Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="employee-table-body">
+          <!-- Dynamic rows will be inserted here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="documents" class="page-section">
+  <h1>Documents</h1>
+  <div class="card">
+    <div class="card-header">
+      <h2>Export Employee Data</h2>
+    </div>
+    <div class="card-content">
+      <!-- Employee Selection -->
+      <div class="form-group">
+        <label for="employee-select">Select Employee</label>
+        <select id="employee-select" class="form-control">
+          <option value="">-- Select an Employee --</option>
+        </select>
+      </div>
+
+      <!-- Data Selection -->
+      <div class="form-group">
+        <label>Data to Include</label>
+        <div>
+          <input type="checkbox" id="include-personal-info" checked />
+          <label for="include-personal-info">Personal Information</label>
+        </div>
+        <div>
+          <input type="checkbox" id="include-job-details" checked />
+          <label for="include-job-details">Job Details</label>
+        </div>
+        <div>
+          <input type="checkbox" id="include-documents" />
+          <label for="include-documents">Documents</label>
+        </div>
+      </div>
+
+      <!-- Format Selection -->
+      <div class="form-group">
+        <label for="format-select">Export Format</label>
+        <select id="format-select" class="form-control">
+          <option value="excel">Excel</option>
+          <option value="csv">CSV</option>
+          <option value="sap">SAP Text Format</option>
+        </select>
+      </div>
+
+      <!-- Export Preview -->
+      <div class="form-group">
+        <label>Export Preview</label>
+        <div id="export-preview" class="export-preview">
+          <p>Select options above to preview the export.</p>
+        </div>
+      </div>
+
+      <!-- Export Actions -->
+      <div class="form-group">
+        <button id="generate-export" class="button button-primary">Generate Export</button>
+        <button id="download-export" class="button button-outline" disabled>Download</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="settings" class="page-section">
+  <h1>Settings</h1>
+  <p>Configure application settings here.</p>
+</div>
+</section>
+</main>
+<div class="toast-container" id="toast-container">
+<!-- Toast notifications will appear here -->
+</div>
+<div class="modal" id="process-modal">
+<div class="modal-content">
+<div class="modal-header">
+<h2>Processing Employee Data</h2>
+<button class="close-button" id="close-modal">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<line x1="18" y1="6" x2="6" y2="18"></line>
+<line x1="6" y1="6" x2="18" y2="18"></line>
+</svg>
+</button>
+</div>
+<div class="modal-body">
+<div class="processing-status">
+<div class="status-item completed">
+<svg class="status-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+<path d="M8 12L11 15L16 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+<div class="status-text">
+<h3>Data Extraction</h3>
+<p>Employee data extracted successfully</p>
+</div>
+</div>
+<div class="status-item in-progress" id="validation-status">
+<svg class="status-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+<circle cx="12" cy="12" r="4" fill="currentColor"/>
+</svg>
+<div class="status-text">
+<h3>Data Validation</h3>
+<p>Validating employee information</p>
+</div>
+</div>
+<div class="status-item" id="notification-status">
+<svg class="status-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+</svg>
+<div class="status-text">
+<h3>Department Notifications</h3>
+<p>Notifying relevant departments</p>
+</div>
+</div>
+</div>
+</div>
+<div class="modal-footer">
+<button class="button button-outline" id="cancel-process">Cancel</button>
+<button class="button button-primary" id="complete-process" disabled>Complete</button>
+</div>
+</div>
+</div>
+<script>
+// DOM Elements
+const themeToggle = document.getElementById('theme-toggle');
+const uploadArea = document.getElementById('upload-area');
+const fileUpload = document.getElementById('file-upload');
+const extractionSection = document.getElementById('extraction-section');
+const extractedData = document.getElementById('extracted-data');
+const resetExtraction = document.getElementById('reset-extraction');
+const processDataBtn = document.getElementById('process-data');
+const processModal = document.getElementById('process-modal');
+const closeModal = document.getElementById('close-modal');
+const cancelProcess = document.getElementById('cancel-process');
+const completeProcess = document.getElementById('complete-process');
+const validationStatus = document.getElementById('validation-status');
+const notificationStatus = document.getElementById('notification-status');
+const recentActionsList = document.getElementById('recent-actions');
+const notificationsList = document.getElementById('notifications');
+const toastContainer = document.getElementById('toast-container');
+
+// Sample employee data (simulated extraction)
+const sampleEmployeeData = {
+personalInfo: {
+fullName: 'John Doe',
+birthDate: '1990-05-15',
+curp: 'DODJ900515HDFNHN08',
+ssn: '123-45-6789',
+email: 'john.doe@example.com',
+phone: '(555) 123-4567'
+},
+address: {
+street: '123 Main Street',
+city: 'Anytown',
+state: 'CA',
+zipCode: '12345',
+country: 'USA'
+},
+employment: {
+position: 'Software Developer',
+department: 'Engineering',
+startDate: '2023-01-15',
+employeeId: 'EMP-2023-0042',
+contractType: 'Full-time',
+salary: '$85,000'
+},
+documents: {
+idNumber: 'ID-98765432',
+passportNumber: 'P123456789',
+driversLicense: 'DL-AB123456'
+}
+};
+
+// App state
+let appState = {
+theme: localStorage.getItem('theme') || 'light',
+extractedEmployee: null,
+recentActions: JSON.parse(localStorage.getItem('recentActions')) || [],
+notifications: JSON.parse(localStorage.getItem('notifications')) || []
+};
+
+// Initialize the app
+function initApp() {
+// Apply saved theme
+if (appState.theme === 'dark') {
+document.body.classList.add('dark-mode');
+updateThemeIcon(true);
+}
+
+// Render recent actions and notifications
+renderRecentActions();
+renderNotifications();
+
+// Check for saved extracted data
+const savedData = localStorage.getItem('extractedEmployeeData');
+if (savedData) {
+appState.extractedEmployee = JSON.parse(savedData);
+showExtractedData();
+}
+
+// Initialize event listeners
+setupEventListeners();
+}
+
+// Setup event listeners
+function setupEventListeners() {
+// Theme toggler
+themeToggle.addEventListener('click', toggleTheme);
+
+// File upload events
+uploadArea.addEventListener('click', () => fileUpload.click());
+fileUpload.addEventListener('change', handleFileUpload);
+uploadArea.addEventListener('dragover', (e) => {
+e.preventDefault();
+uploadArea.classList.add('dragover');
+});
+uploadArea.addEventListener('dragleave', () => {
+uploadArea.classList.remove('dragover');
+});
+uploadArea.addEventListener('drop', handleFileDrop);
+
+// Reset extraction
+resetExtraction.addEventListener('click', resetExtractionData);
+
+// Process data
+processDataBtn.addEventListener('click', () => {
+processModal.classList.add('show');
+simulateProcessing();
+});
+
+// Modal events
+closeModal.addEventListener('click', () => processModal.classList.remove('show'));
+cancelProcess.addEventListener('click', () => processModal.classList.remove('show'));
+completeProcess.addEventListener('click', completeProcessing);
+}
+
+// Toggle theme
+function toggleTheme() {
+const isDarkMode = document.body.classList.toggle('dark-mode');
+appState.theme = isDarkMode ? 'dark' : 'light';
+localStorage.setItem('theme', appState.theme);
+updateThemeIcon(isDarkMode);
+}
+
+// Update theme icon
+function updateThemeIcon(isDarkMode) {
+const themeIcon = themeToggle.querySelector('.theme-icon');
+if (isDarkMode) {
+themeIcon.innerHTML = `
+<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+`;
+} else {
+themeIcon.innerHTML = `
+<path d="M21 12.79C20.8427 14.4922 20.2039 16.1144 19.1582 17.4668C18.1126 18.8192 16.7035 19.8458 15.0957 20.4265C13.4879 21.0073 11.748 21.1181 10.0795 20.7461C8.41101 20.3741 6.88299 19.5345 5.67424 18.3258C4.46549 17.117 3.62593 15.589 3.25391 13.9205C2.8819 12.252 2.99274 10.5121 3.57348 8.9043C4.15423 7.29651 5.18085 5.88737 6.53324 4.84175C7.88562 3.79614 9.5078 3.15731 11.21 3C10.2134 4.34827 9.73383 6.00945 9.85853 7.68141C9.98322 9.35338 10.7039 10.9251 11.8894 12.1106C13.0749 13.2961 14.6466 14.0168 16.3186 14.1415C17.9906 14.2662 19.6517 13.7866 21 12.79Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+`;
+}
+}
+
+// Handle file upload
+function handleFileUpload(e) {
+if (e.target.files.length > 0) {
+simulateFileProcessing(e.target.files[0]);
+}
+}
+
+// Handle file drop
+function handleFileDrop(e) {
+e.preventDefault();
+uploadArea.classList.remove('dragover');
+if (e.dataTransfer.files.length > 0) {
+fileUpload.files = e.dataTransfer.files;
+simulateFileProcessing(e.dataTransfer.files[0]);
+}
+}
+
+// Simulate file processing
+function simulateFileProcessing(file) {
+showToast('info', 'Processing Document', `Extracting data from ${file.name}...`);
+
+// Add to recent actions
+addRecentAction('file-upload', 'Document Uploaded', `Uploaded ${file.name} (${formatFileSize(file.size)})`);
+
+// Use PDF.js to read the file
+const reader = new FileReader();
+reader.onload = function (e) {
+const typedArray = new Uint8Array(e.target.result);
+pdfjsLib.getDocument(typedArray).promise.then(pdf => {
+let pdfText = '';
+const pages = [];
+
+for (let i = 1; i <= pdf.numPages; i++) {
+pages.push(pdf.getPage(i).then(page => {
+return page.getTextContent().then(textContent => {
+return textContent.items.map(item => item.str).join(' ');
+});
+}));
+}
+
+Promise.all(pages).then(pageTexts => {
+pdfText = pageTexts.join('\n');
+console.log('Extracted PDF Text:', pdfText);
+
+// Simulate processing delay
+setTimeout(() => {
+appState.extractedEmployee = sampleEmployeeData; // Replace with parsed data if needed
+localStorage.setItem('extractedEmployeeData', JSON.stringify(appState.extractedEmployee));
+showExtractedData();
+showToast('success', 'Extraction Complete', 'Employee data extracted successfully');
+}, 1500);
+});
+});
+};
+reader.readAsArrayBuffer(file);
+}
+
+// Show extracted data
+function showExtractedData() {
+if (!appState.extractedEmployee) return;
+
+extractedData.innerHTML = '';
+extractionSection.style.display = 'block';
+
+// Initialize GSAP animation
+const tl = gsap.timeline();
+
+// Personal Information
+const personalInfoSection = document.createElement('div');
+personalInfoSection.className = 'data-section';
+
+const personalTitle = document.createElement('h3');
+personalTitle.textContent = 'Personal Information';
+personalInfoSection.appendChild(personalTitle);
+
+for (const [key, value] of Object.entries(appState.extractedEmployee.personalInfo)) {
+const field = createDataField(key, value, true);
+personalInfoSection.appendChild(field);
+
+// Add animation
+tl.fromTo(field, {opacity: 0, y: 20}, {opacity: 1, y: 0, duration: 0.3}, '-=0.2');
+}
+
+extractedData.appendChild(personalInfoSection);
+
+// Address Information
+const addressSection = document.createElement('div');
+addressSection.className = 'data-section';
+
+const addressTitle = document.createElement('h3');
+addressTitle.textContent = 'Address';
+addressSection.appendChild(addressTitle);
+
+for (const [key, value] of Object.entries(appState.extractedEmployee.address)) {
+const field = createDataField(key, value, true);
+addressSection.appendChild(field);
+
+// Add animation
+tl.fromTo(field, {opacity: 0, y: 20}, {opacity: 1, y: 0, duration: 0.3}, '-=0.2');
+}
+
+extractedData.appendChild(addressSection);
+
+// Employment Information
+const employmentSection = document.createElement('div');
+employmentSection.className = 'data-section';
+
+const employmentTitle = document.createElement('h3');
+employmentTitle.textContent = 'Employment Information';
+employmentSection.appendChild(employmentTitle);
+
+for (const [key, value] of Object.entries(appState.extractedEmployee.employment)) {
+const field = createDataField(key, value, true);
+employmentSection.appendChild(field);
+
+// Add animation
+tl.fromTo(field, {opacity: 0, y: 20}, {opacity: 1, y: 0, duration: 0.3}, '-=0.2');
+}
+
+extractedData.appendChild(employmentSection);
+
+// Document Information
+const documentSection = document.createElement('div');
+documentSection.className = 'data-section';
+
+const documentTitle = document.createElement('h3');
+documentTitle.textContent = 'Documents';
+documentSection.appendChild(documentTitle);
+
+for (const [key, value] of Object.entries(appState.extractedEmployee.documents)) {
+const field = createDataField(key, value, true);
+documentSection.appendChild(field);
+
+// Add animation
+tl.fromTo(field, {opacity: 0, y: 20}, {opacity: 1, y: 0, duration: 0.3}, '-=0.2');
+}
+
+extractedData.appendChild(documentSection);
+
+// Scroll to extraction section
+setTimeout(() => {
+extractionSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}, 100);
+}
+
+// Create data field
+function createDataField(key, value, editable = false) {
+const fieldContainer = document.createElement('div');
+fieldContainer.className = `data-field ${editable ? 'editable' : ''}`;
+
+const label = document.createElement('label');
+label.textContent = formatLabel(key);
+fieldContainer.appendChild(label);
+
+const input = document.createElement('input');
+input.type = 'text';
+input.value = value;
+input.readOnly = !editable;
+input.id = `field-${key}`;
+input.name = key;
+input.addEventListener('change', () => {
+updateExtractedData(key, input.value);
+});
+
+fieldContainer.appendChild(input);
+return fieldContainer;
+}
+
+// Format label
+function formatLabel(key) {
+return key
+.replace(/([A-Z])/g, ' $1')
+.replace(/^./, str => str.toUpperCase())
+.trim();
+}
+
+// Update extracted data
+function updateExtractedData(key, value) {
+// Find and update the correct property in the nested object
+Object.keys(appState.extractedEmployee).forEach(section => {
+if (appState.extractedEmployee[section].hasOwnProperty(key)) {
+appState.extractedEmployee[section][key] = value;
+}
+});
+
+// Save updated data
+localStorage.setItem('extractedEmployeeData', JSON.stringify(appState.extractedEmployee));
+showToast('info', 'Data Updated', `Updated ${formatLabel(key)} information`);
+
+// Add to recent actions
+addRecentAction('edit', 'Information Updated', `Updated ${formatLabel(key)} information`);
+}
+
+// Reset extraction data
+function resetExtractionData() {
+// Show confirmation dialog
+if (confirm('Are you sure you want to reset the extracted data?')) {
+localStorage.removeItem('extractedEmployeeData');
+appState.extractedEmployee = null;
+extractionSection.style.display = 'none';
+showToast('warning', 'Data Reset', 'Extracted employee data has been reset');
+addRecentAction('reset', 'Data Reset', 'Extracted employee data has been reset');
+}
+}
+
+// Simulate processing
+function simulateProcessing() {
+// Step 1: Data Validation (already complete in UI)
+
+// Step 2: Simulate validation process
+setTimeout(() => {
+validationStatus.classList.remove('in-progress');
+validationStatus.classList.add('completed');
+
+// Start notification process
+notificationStatus.classList.add('in-progress');
+
+// Simulate notification process
+setTimeout(() => {
+// Send notifications to departments
+notifyDepartment('HR', 'New employee data validated');
+notifyDepartment('Payroll', 'New employee ready for payroll setup');
+notifyDepartment('IT', 'New employee requires system access');
+
+notificationStatus.classList.remove('in-progress');
+notificationStatus.classList.add('completed');
+
+// Enable complete button
+completeProcess.disabled = false;
+}, 2000);
+}, 2000);
+}
+
+// Complete processing
+function completeProcessing() {
+processModal.classList.remove('show');
+showToast('success', 'Processing Complete', 'Employee data has been processed and departments notified');
+addRecentAction('process', 'Processing Complete', 'Employee data processed and departments notified');
+}
+
+// Notify department (simulated)
+function notifyDepartment(department, message) {
+console.log(`Notification sent to ${department}: ${message}`);
+showToast('info', `${department} Notified`, message);
+
+// Add to notifications
+addNotification(department.toLowerCase(), `${department} Notification`, message);
+}
+
+// Add recent action
+function addRecentAction(type, title, description) {
+const action = {
+type,
+title,
+description,
+timestamp: new Date().toISOString()
+};
+
+appState.recentActions.unshift(action);
+
+// Keep only the most recent 10 actions
+if (appState.recentActions.length > 10) {
+appState.recentActions.pop();
+}
+
+// Save to localStorage
+localStorage.setItem('recentActions', JSON.stringify(appState.recentActions));
+
+// Update UI
+renderRecentActions();
+}
+
+// Add notification
+function addNotification(type, title, message) {
+const notification = {
+type,
+title,
+message,
+timestamp: new Date().toISOString(),
+read: false
+};
+
+appState.notifications.unshift(notification);
+
+// Keep only the most recent 10 notifications
+if (appState.notifications.length > 10) {
+appState.notifications.pop();
+}
+
+// Save to localStorage
+localStorage.setItem('notifications', JSON.stringify(appState.notifications));
+
+// Update UI
+renderNotifications();
+}
+
+// Render recent actions
+function renderRecentActions() {
+recentActionsList.innerHTML = '';
+
+if (appState.recentActions.length === 0) {
+const emptyMessage = document.createElement('li');
+emptyMessage.textContent = 'No recent actions';
+emptyMessage.className = 'empty-message';
+recentActionsList.appendChild(emptyMessage);
+return;
+}
+
+appState.recentActions.forEach(action => {
+const actionItem = document.createElement('li');
+actionItem.className = 'action-item';
+const iconSvg = getActionIcon(action.type);
+actionItem.innerHTML = `
+<div class="action-icon">${iconSvg}</div>
+<div class="action-content">
+<h3>${action.title}</h3>
+<p>${action.description}</p>
+<div class="action-time">${formatTimeAgo(action.timestamp)}</div>
+</div>
+`;
+
+recentActionsList.appendChild(actionItem);
+});
+}
+
+// Render notifications
+function renderNotifications() {
+notificationsList.innerHTML = '';
+
+if (appState.notifications.length === 0) {
+const emptyMessage = document.createElement('li');
+emptyMessage.textContent = 'No notifications';
+emptyMessage.className = 'empty-message';
+notificationsList.appendChild(emptyMessage);
+return;
+}
+
+appState.notifications.forEach(notification => {
+const notificationItem = document.createElement('li');
+notificationItem.className = `notification-item ${notification.read ? 'read' : 'unread'}`;
+
+const iconSvg = getNotificationIcon(notification.type);
+
+notificationItem.innerHTML = `
+<div class="notification-icon">${iconSvg}</div>
+<div class="notification-content">
+<h3>${notification.title}</h3>
+<p>${notification.message}</p>
+<div class="notification-time">${formatTimeAgo(notification.timestamp)}</div>
+</div>
+`;
+
+// Mark as read when clicked
+notificationItem.addEventListener('click', () => {
+markNotificationRead(notification);
+});
+
+notificationsList.appendChild(notificationItem);
+});
+}
+
+// Mark notification as read
+function markNotificationRead(notification) {
+notification.read = true;
+localStorage.setItem('notifications', JSON.stringify(appState.notifications));
+renderNotifications();
+}
+
+// Show toast notification
+function showToast(type, title, message) {
+const toast = document.createElement('div');
+toast.className = `toast ${type}`;
+const iconSvg = getToastIcon(type);
+toast.innerHTML = `
+<div class="toast-icon">${iconSvg}</div>
+<div class="toast-content">
+<h3>${title}</h3>
+<p>${message}</p>
+</div>
+<button class="toast-dismiss" aria-label="Dismiss">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<line x1="18" y1="6" x2="6" y2="18"></line>
+<line x1="6" y1="6" x2="18" y2="18"></line>
+</svg>
+</button>
+`;
+
+// Add dismiss functionality
+toast.querySelector('.toast-dismiss').addEventListener('click', () => {
+toast.style.animation = 'slide-out var(--transition-medium) forwards';
+setTimeout(() => {
+toast.remove();
+}, 300);
+});
+
+toastContainer.appendChild(toast);
+
+// Auto-remove after 5 seconds
+setTimeout(() => {
+if (toast.parentNode) {
+toast.style.animation = 'slide-out var(--transition-medium) forwards';
+setTimeout(() => {
+toast.remove();
+}, 300);
+}
+}, 5000);
+}
+
+// Get action icon
+function getActionIcon(type) {
+switch (type) {
+case 'file-upload':
+return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+<polyline points="14 2 14 8 20 8"></polyline>
+<line x1="12" y1="18" x2="12" y2="12"></line>
+<line x1="9" y1="15" x2="15" y2="15"></line>
+</svg>`;
+case 'edit':
+return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+</svg>`;
+case 'reset':
+return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M3 2v6h6"></path>
+<path d="M3 13a9 9 0 1 0 3-7.7L3 8"></path>
+</svg>`;
+case 'process':
+return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+<polyline points="22 4 12 14.01 9 11.01"></polyline>
+</svg>`;
+default:
+return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<circle cx="12" cy="12" r="10"></circle>
+<line x1="12" y1="8" x2="12.01" y2="8"></line>
+<line x1="12" y1="16" x2="12.01" y2="16"></line>
+</svg>`;
+}
+}
+
+// Get notification icon
+function getNotificationIcon(type) {
+switch (type) {
+case 'hr':
+return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+<circle cx="9" cy="7" r="4"></circle>
+<path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+<path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+</svg>`;
+case 'payroll':
+return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<line x1="12" y1="1" x2="12" y2="23"></line>
+<path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+</svg>`;
+case 'it':
+return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+<line x1="8" y1="21" x2="16" y2="21"></line>
+<line x1="12" y1="17" x2="12" y2="21"></line>
+</svg>`;
+default:
+return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+<path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+</svg>`;
+}
+}
+
+// Get toast icon
+function getToastIcon(type) {
+switch (type) {
+case 'success':
+return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+<polyline points="22 4 12 14.01 9 11.01"></polyline>
+</svg>`;
+case 'warning':
+return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+<line x1="12" y1="9" x2="12" y2="13"></line>
+<line x1="12" y1="17" x2="12.01" y2="17"></line>
+</svg>`;
+case 'error':
+return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<circle cx="12" cy="12" r="10"></circle>
+<line x1="15" y1="9" x2="9" y2="15"></line>
+<line x1="9" y1="9" x2="15" y2="15"></line>
+</svg>`;
+case 'info':
+default:
+return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<circle cx="12" cy="12" r="10"></circle>
+<line x1="12" y1="16" x2="12" y2="12"></line>
+<line x1="12" y1="8" x2="12.01" y2="8"></line>
+</svg>`;
+}
+}
+
+// Format time ago
+function formatTimeAgo(timestamp) {
+const now = new Date();
+const date = new Date(timestamp);
+const seconds = Math.floor((now - date) / 1000);
+
+let interval = Math.floor(seconds / 31536000);
+if (interval >= 1) {
+return interval === 1 ? '1 year ago' : `${interval} years ago`;
+}
+
+interval = Math.floor(seconds / 2592000);
+if (interval >= 1) {
+return interval === 1 ? '1 month ago' : `${interval} months ago`;
+}
+
+interval = Math.floor(seconds / 86400);
+if (interval >= 1) {
+return interval === 1 ? '1 day ago' : `${interval} days ago`;
+}
+
+interval = Math.floor(seconds / 3600);
+if (interval >= 1) {
+return interval === 1 ? '1 hour ago' : `${interval} hours ago`;
+}
+
+interval = Math.floor(seconds / 60);
+if (interval >= 1) {
+return interval === 1 ? '1 minute ago' : `${interval} minutes ago`;
+}
+
+return seconds < 10 ? 'just now' : `${seconds} seconds ago`;
+}
+
+// Format file size
+function formatFileSize(bytes) {
+if (bytes === 0) return '0 Bytes';
+const k = 1024;
+const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// Initialize the app
+document.addEventListener('DOMContentLoaded', initApp);
+</script>
+<script>
+// Enhanced employee data structure
+const dummyEmployees = [
+  {
+    id: 'EMP-001',
+    name: 'John Doe',
+    department: 'Engineering',
+    position: 'Software Engineer',
+    email: 'john.doe@example.com',
+    hireDate: '2023-01-15',
+    status: { type: 'missing', details: 'Missing ID documents' }
+  },
+  {
+    id: 'EMP-002',
+    name: 'Jane Smith',
+    department: 'HR',
+    position: 'HR Manager',
+    email: 'jane.smith@example.com',
+    hireDate: '2022-05-10',
+    status: { type: 'complete', details: 'All documents verified' }
+  },
+  {
+    id: 'EMP-003',
+    name: 'Michael Brown',
+    department: 'Finance',
+    position: 'Accountant',
+    email: 'michael.brown@example.com',
+    hireDate: '2021-09-20',
+    status: { type: 'missing', details: 'Missing tax forms' }
+  }
+];
+
+// Save initial data to localStorage if not already present
+if (!localStorage.getItem('employees')) {
+  localStorage.setItem('employees', JSON.stringify(dummyEmployees));
+}
+
+// Function to render the employee table dynamically
+function renderEmployeeTable() {
+  const tableBody = document.getElementById('employee-table-body');
+  if (!tableBody) return;
+
+  // Retrieve employee data from localStorage
+  const employees = JSON.parse(localStorage.getItem('employees')) || [];
+
+  // Clear existing rows
+  tableBody.innerHTML = '';
+
+  // Add rows for each employee
+  employees.forEach(employee => {
+    const row = document.createElement('tr');
+
+    // Employee ID cell
+    const idCell = document.createElement('td');
+    idCell.textContent = employee.id;
+    row.appendChild(idCell);
+
+    // Name cell
+    const nameCell = document.createElement('td');
+    nameCell.textContent = employee.name;
+    row.appendChild(nameCell);
+
+    // Department cell
+    const deptCell = document.createElement('td');
+    deptCell.textContent = employee.department;
+    row.appendChild(deptCell);
+
+    // Position cell
+    const positionCell = document.createElement('td');
+    positionCell.textContent = employee.position;
+    row.appendChild(positionCell);
+
+    // Email cell
+    const emailCell = document.createElement('td');
+    emailCell.textContent = employee.email;
+    row.appendChild(emailCell);
+
+    // Hire Date cell
+    const hireDateCell = document.createElement('td');
+    hireDateCell.textContent = formatDate(employee.hireDate);
+    row.appendChild(hireDateCell);
+
+    // Status cell
+    const statusCell = document.createElement('td');
+    const statusBadge = document.createElement('span');
+    statusBadge.className = `status-badge ${employee.status.type === 'complete' ? 'status-complete' : 'status-missing'}`;
+    statusBadge.textContent = employee.status.details;
+    statusCell.appendChild(statusBadge);
+    row.appendChild(statusCell);
+
+    // Actions cell
+    const actionsCell = document.createElement('td');
+    actionsCell.innerHTML = `
+      <button class="button button-outline" onclick="editEmployee('${employee.id}')">Edit</button>
+      <button class="button button-outline" onclick="deleteEmployee('${employee.id}')">Delete</button>
+    `;
+    row.appendChild(actionsCell);
+
+    // Add row to table
+    tableBody.appendChild(row);
+  });
+}
+
+// Helper function to format dates
+function formatDate(dateString) {
+  const options = { year: 'numeric', month: 'short', day: 'numeric' };
+  return new Date(dateString).toLocaleDateString(undefined, options);
+}
+
+// Function to toggle between sections
+function navigateTo(pageId) {
+  // Hide all sections
+  document.querySelectorAll('.page-section').forEach(section => {
+    section.style.display = 'none'; // Hide all sections
+  });
+
+  // Show the selected section
+  const targetSection = document.getElementById(pageId);
+  if (targetSection) {
+    targetSection.style.display = 'block'; // Show the selected section
+  }
+
+  // Update active tab styling
+  document.querySelectorAll('.nav-links a').forEach(link => {
+    link.classList.remove('active'); // Remove active class from all tabs
+    if (link.getAttribute('data-page') === pageId) {
+      link.classList.add('active'); // Add active class to the current tab
+    }
+  });
+
+  // Save the current page to localStorage
+  localStorage.setItem('currentPage', pageId);
+}
+
+// Placeholder function for editing an employee
+function editEmployee(employeeId) {
+  const employees = JSON.parse(localStorage.getItem('employees')) || [];
+  const employee = employees.find(emp => emp.id === employeeId);
+
+  if (employee) {
+    const newName = prompt('Edit Name:', employee.name);
+    const newEmail = prompt('Edit Email:', employee.email);
+    const newPosition = prompt('Edit Position:', employee.position);
+
+    if (newName && newEmail && newPosition) {
+      employee.name = newName;
+      employee.email = newEmail;
+      employee.position = newPosition;
+
+      // Save updated data to localStorage
+      localStorage.setItem('employees', JSON.stringify(employees));
+      renderEmployeeTable();
+      showToast('success', 'Employee Updated', `Employee ${employeeId} updated successfully.`);
+    }
+  }
+}
+
+// Placeholder function for adding a new employee
+function addEmployee() {
+  alert('Add Employee functionality is not implemented yet.');
+}
+
+// Function to delete an employee
+function deleteEmployee(employeeId) {
+  const employees = JSON.parse(localStorage.getItem('employees')) || [];
+  const updatedEmployees = employees.filter(emp => emp.id !== employeeId);
+
+  // Save updated data to localStorage
+  localStorage.setItem('employees', JSON.stringify(updatedEmployees));
+  renderEmployeeTable();
+  showToast('warning', 'Employee Deleted', `Employee ${employeeId} has been deleted.`);
+}
+
+// Event listeners for navigation and buttons
+document.addEventListener('DOMContentLoaded', () => {
+  // Load the last viewed page from localStorage
+  const lastPage = localStorage.getItem('currentPage') || 'dashboard';
+  navigateTo(lastPage);
+
+  // Add event listeners to navigation links
+  document.querySelectorAll('.nav-links a').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const pageId = link.getAttribute('data-page');
+      navigateTo(pageId);
+    });
+  });
+
+  // Add event listener for the "Add Employee" button
+  const addButton = document.getElementById('add-employee');
+  if (addButton) {
+    addButton.addEventListener('click', addEmployee);
+  }
+
+  // Add event listener for the "Refresh" button
+  const refreshButton = document.getElementById('refresh-employees');
+  if (refreshButton) {
+    refreshButton.addEventListener('click', () => {
+      renderEmployeeTable();
+      showToast('info', 'Employee List Refreshed', 'The employee list has been refreshed.');
+    });
+  }
+});
+</script>
+<script>
+// Populate the employee dropdown
+function populateEmployeeDropdown() {
+  const employeeSelect = document.getElementById('employee-select');
+  const employees = JSON.parse(localStorage.getItem('employees')) || [];
+
+  employees.forEach(employee => {
+    const option = document.createElement('option');
+    option.value = employee.id;
+    option.textContent = `${employee.name} (${employee.id})`;
+    employeeSelect.appendChild(option);
+  });
+}
+
+// Generate export preview
+function generateExportPreview() {
+  const employeeId = document.getElementById('employee-select').value;
+  const includePersonalInfo = document.getElementById('include-personal-info').checked;
+  const includeJobDetails = document.getElementById('include-job-details').checked;
+  const includeDocuments = document.getElementById('include-documents').checked;
+  const format = document.getElementById('format-select').value;
+  const previewContainer = document.getElementById('export-preview');
+
+  const employees = JSON.parse(localStorage.getItem('employees')) || [];
+  const employee = employees.find(emp => emp.id === employeeId);
+
+  if (!employee) {
+    previewContainer.textContent = 'Please select an employee to generate a preview.';
+    return;
+  }
+
+  let previewContent = '';
+
+  if (format === 'excel' || format === 'csv') {
+    // Generate table headers
+    const headers = [];
+    const rows = [];
+
+    if (includePersonalInfo) {
+      headers.push('Name', 'Email');
+      rows.push([employee.name, employee.email]);
+    }
+
+    if (includeJobDetails) {
+      headers.push('Position', 'Department', 'Hire Date');
+      rows.push([employee.position, employee.department, employee.hireDate]);
+    }
+
+    if (includeDocuments) {
+      headers.push('Status');
+      rows.push([employee.status.details]);
+    }
+
+    // Generate CSV/Excel content
+    previewContent = headers.join(',') + '\n' + rows.map(row => row.join(',')).join('\n');
+  } else if (format === 'sap') {
+    // Generate SAP text format
+    if (includePersonalInfo) {
+      previewContent += `Name: ${employee.name}\nEmail: ${employee.email}\n`;
+    }
+    if (includeJobDetails) {
+      previewContent += `Position: ${employee.position}\nDepartment: ${employee.department}\nHire Date: ${employee.hireDate}\n`;
+    }
+    if (includeDocuments) {
+      previewContent += `Status: ${employee.status.details}\n`;
+    }
+  }
+
+  previewContainer.textContent = previewContent;
+  document.getElementById('download-export').disabled = false;
+}
+
+// Download export
+function downloadExport() {
+  const format = document.getElementById('format-select').value;
+  const previewContent = document.getElementById('export-preview').textContent;
+
+  const blob = new Blob([previewContent], { type: format === 'sap' ? 'text/plain' : 'text/csv' });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `employee_export.${format === 'sap' ? 'txt' : 'csv'}`;
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', () => {
+  populateEmployeeDropdown();
+
+  document.getElementById('generate-export').addEventListener('click', generateExportPreview);
+  document.getElementById('download-export').addEventListener('click', downloadExport);
+});
+</script>
+</body>
+</html>
